@@ -14,6 +14,14 @@ namespace GraphicsLab2
 {
    class Game : GameWindow
    {
+
+      List<Figure> figures;
+      int active = 0;
+      bool isActive = false;
+      Vector2 lastMousePress;
+
+      float mouseX = 0, mouseY = 0;
+
       public Game(int width, int height, string title) :
            base(width, height, GraphicsMode.Default, title)
       {
@@ -22,8 +30,8 @@ namespace GraphicsLab2
 
       protected override void OnLoad(EventArgs e)
       {
-
-
+         figures = new List<Figure>();
+         lastMousePress = Vector2.Zero;
          base.OnLoad(e);
       }
 
@@ -31,9 +39,107 @@ namespace GraphicsLab2
       {
          GL.Clear(ClearBufferMask.ColorBufferBit);
 
+         Title = figures.Count.ToString();
+
+         UpdatePhysics();
+         Render();
 
          Context.SwapBuffers();
          base.OnRenderFrame(e);
+      }
+
+      private void UpdatePhysics()
+      {
+         
+
+      }
+
+      private void Render()
+      {
+         GL.ClearColor(Color4.DarkGray);
+
+         foreach (var f in figures)
+         {
+            f.Draw();
+         }
+      }
+
+      protected override void OnKeyDown(KeyboardKeyEventArgs e)
+      {
+         if(e.Shift)
+         {
+            switch(e.Key)
+            {
+               case Key.A:
+               {
+                  if (!isActive)
+                  {
+                     figures.Add(new Figure(new Vector2(mouseX, mouseY)));
+                     isActive = true;
+                     active = figures.Count - 1;
+                     lastMousePress = new Vector2(mouseX, mouseY);
+                  }
+                  break;
+               }
+            }
+         }
+
+         base.OnKeyDown(e);
+      }
+
+      protected override void OnMouseDown(MouseButtonEventArgs e)
+      {
+         switch(e.Button)
+         {
+            case MouseButton.Left:
+            {
+               if (isActive)
+               {
+                  isActive = false;
+               }
+               //{
+               //   figures.Add(new Figure(new Vector2(e.X, e.Y)));
+               //   isActive = true;
+               //   active = figures.Count - 1;
+               //   lastMousePress = new Vector2(e.X, e.Y);
+               //}
+               //else
+               //{
+               //   isActive = false;
+               //}
+
+               break;
+            }
+         }
+
+         base.OnMouseDown(e);
+      }
+
+      protected override void OnMouseMove(MouseMoveEventArgs e)
+      {
+         if (isActive)
+         {
+            //Vector2 mouseCoords = new Vector2(e.X, e.Y);
+            figures[active].radius = lastMousePress.X - e.X;
+            figures[active].RecalcVertices();
+            //figures[active].radius += e.XDelta;
+            //figures[active].RecalcVertices(mouseCoords);
+         }
+
+         mouseX = e.X;
+         mouseY = e.Y;
+
+         base.OnMouseMove(e);
+      }
+
+      protected override void OnMouseWheel(MouseWheelEventArgs e)
+      {
+         if (isActive)
+         {
+            figures[active].RecalcVertices(figures[active].vertices.Count + e.Delta);
+         }
+
+         base.OnMouseWheel(e);
       }
 
       protected override void OnResize(EventArgs e)
