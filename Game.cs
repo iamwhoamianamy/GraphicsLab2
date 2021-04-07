@@ -16,8 +16,11 @@ namespace GraphicsLab2
    {
 
       List<Figure> figures;
-      int active = 0;
-      bool isActive = false;
+
+      bool isActive = false;                    // Есть ли активная фигура
+      int active = 0;                           // Номер активной фигуры
+
+      bool isInCreationProcess = false;         // Находится ли фигура в процессе создания
       Vector2 lastMousePress;
 
       float mouseX = 0, mouseY = 0;
@@ -62,6 +65,11 @@ namespace GraphicsLab2
          {
             f.Draw();
          }
+
+         if(isActive)
+         {
+            figures[active].DrawCenter();
+         }
       }
 
       protected override void OnKeyDown(KeyboardKeyEventArgs e)
@@ -72,10 +80,11 @@ namespace GraphicsLab2
             {
                case Key.A:
                {
-                  if (!isActive)
+                  if (!isInCreationProcess)
                   {
                      figures.Add(new Figure(new Vector2(mouseX, mouseY)));
                      isActive = true;
+                     isInCreationProcess = true;
                      active = figures.Count - 1;
                      lastMousePress = new Vector2(mouseX, mouseY);
                   }
@@ -93,20 +102,51 @@ namespace GraphicsLab2
          {
             case MouseButton.Left:
             {
-               if (isActive)
-               {
-                  isActive = false;
-               }
-               //{
-               //   figures.Add(new Figure(new Vector2(e.X, e.Y)));
-               //   isActive = true;
-               //   active = figures.Count - 1;
-               //   lastMousePress = new Vector2(e.X, e.Y);
-               //}
-               //else
+               //if (isActive)
                //{
                //   isActive = false;
                //}
+
+               if(isInCreationProcess)
+               {
+                  isInCreationProcess = false;
+               }
+
+
+               break;
+            }
+            case MouseButton.Right:
+            {
+               if(!isInCreationProcess && figures.Count > 0)
+               {
+                  float minDist = float.MaxValue;
+                  int minInd = 0;
+                  bool isFoundAny = false;
+
+                  for (int i = 0; i < figures.Count; i++)
+                  {
+                     float dist = Vector2.Distance(figures[i].GetPos(), new Vector2(e.X, e.Y));
+                     if (dist < minDist && dist < Math.Abs(figures[i].radius) / 2)
+                     {
+                        minDist = dist;
+                        minInd = i;
+                        isFoundAny = true;
+                     }
+                  }
+
+                  if (isFoundAny)
+                  {
+                     active = minInd;
+                     isActive = true;
+                  }
+               }
+
+               if(isInCreationProcess)
+               {
+                  figures.RemoveAt(active);
+                  isInCreationProcess = false;
+                  isActive = false;
+               }
 
                break;
             }
@@ -117,13 +157,10 @@ namespace GraphicsLab2
 
       protected override void OnMouseMove(MouseMoveEventArgs e)
       {
-         if (isActive)
+         if (isInCreationProcess)
          {
-            //Vector2 mouseCoords = new Vector2(e.X, e.Y);
-            figures[active].radius = lastMousePress.X - e.X;
+            figures[active].radius = e.X - lastMousePress.X;
             figures[active].RecalcVertices();
-            //figures[active].radius += e.XDelta;
-            //figures[active].RecalcVertices(mouseCoords);
          }
 
          mouseX = e.X;

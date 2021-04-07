@@ -41,14 +41,6 @@ namespace GraphicsLab2
          return new Vector2(_pos.X, _pos.Y);
       }
 
-      public void RecalcVertices(Vector2 newPos)
-      {
-         Vector2 delta = newPos - _pos;
-         _pos = newPos;
-         for (int i = 0; i < vertices.Count; i++)
-            vertices[i] += delta;
-      }
-
       public void RecalcVertices(int newCount)
       {
          if(newCount > 2 && newCount != vertices.Count)
@@ -77,6 +69,23 @@ namespace GraphicsLab2
 
          foreach (var v in vertices)
             GL.Vertex2(v.X, v.Y);
+
+         GL.End();
+      }
+
+      public void DrawCenter()
+      {
+         GL.Color3(0f, 0f, 0f);
+
+         float size = 10f;
+
+         GL.LineWidth(7.5f);
+         GL.Begin(BeginMode.Lines);
+
+         GL.Vertex2(_pos.X + size, _pos.Y);
+         GL.Vertex2(_pos.X - size, _pos.Y);
+         GL.Vertex2(_pos.X, _pos.Y + size);
+         GL.Vertex2(_pos.X, _pos.Y - size);
 
          GL.End();
       }
