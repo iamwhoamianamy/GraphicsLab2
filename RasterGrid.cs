@@ -14,29 +14,53 @@ namespace GraphicsLab2
    class RasterGrid
    {
       public Point[][] grid;
+      private int _resolution = 0;
 
-      private float cellW, cellH;
-      private float screenW, screenH;
+      private float _cellW, _cellH;
+      private float _screenW, _screenH;
 
-
-      public RasterGrid(float screenW, float screenH)
+      public RasterGrid(int resolution, float screenW, float screenH)
       {
-         grid = new Point[10][];
-
-         for (int i = 0; i < 10; i++)
-            grid[i] = new Point[10];
-
+         AddResolution(Math.Min(Math.Max(resolution, 10), 40));
          SetScreenSize(screenW, screenH);
       }
 
+      //public int GetResolution()
+      //{
+      //   return _resolution;
+      //}
+
+      public void AddResolution(int resolution)
+      {
+         int newResolution = _resolution + resolution;
+
+         if (newResolution >= 10 && newResolution <= 40)
+         {
+            _resolution = newResolution;
+            grid = new Point[newResolution][];
+
+            for (int i = 0; i < newResolution; i++)
+               grid[i] = new Point[newResolution];
+         }
+
+         RecalcCellSize();
+      }
+
+
       public void SetScreenSize(float screenW, float screenH)
       {
-         this.screenW = screenW;
-         this.screenH = screenH;
+         _screenW = screenW;
+         _screenH = screenH;
 
-         cellW = screenW / 10;
-         cellH = screenH / 10;
+         RecalcCellSize();
       }
+
+      private void RecalcCellSize()
+      {
+         _cellW = _screenW / _resolution;
+         _cellH = _screenH / _resolution;
+      }
+
       //private Vector2 GetCellCoord(int xi, int yi)
       //{
 
@@ -50,16 +74,16 @@ namespace GraphicsLab2
 
 
 
-         for (int i = 0; i < grid.Length - 1; i++)
+         for (int i = 0; i < _resolution - 1; i++)
          {
-            for (int j = 0; j < grid[i].Length - 1; j++)
+            for (int j = 0; j < _resolution - 1; j++)
             {
-               GL.Vertex2(cellW * (j + 1), 0);
-               GL.Vertex2(cellW * (j + 1), screenH);
+               GL.Vertex2(_cellW * (j + 1), 0);
+               GL.Vertex2(_cellW * (j + 1), _screenH);
             }
 
-            GL.Vertex2(0, cellH * (i + 1));
-            GL.Vertex2(screenW, cellH * (i + 1));
+            GL.Vertex2(0, _cellH * (i + 1));
+            GL.Vertex2(_screenW, _cellH * (i + 1));
 
          }
 

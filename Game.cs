@@ -36,7 +36,7 @@ namespace GraphicsLab2
       {
          figures = new List<Figure>();
          lastMousePress = Vector2.Zero;
-         rasterGrid = new RasterGrid(Width, Height);
+         rasterGrid = new RasterGrid(20, Width, Height);
 
          base.OnLoad(e);
       }
@@ -95,6 +95,20 @@ namespace GraphicsLab2
                   }
                   break;
                }
+            }
+         }
+
+         switch(e.Key)
+         {
+            case Key.Plus:
+            {
+               rasterGrid.AddResolution(1);
+               break;
+            }
+            case Key.Minus:
+            {
+               rasterGrid.AddResolution(-1);
+               break;
             }
          }
 
