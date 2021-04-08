@@ -16,7 +16,7 @@ namespace GraphicsLab2
    {
       private Vector2 _pos;
       public float radius = 0;
-      public List<Vector2> vertices;
+      public Vector2[] vertices;
       Color4 color;
 
       public Figure(Vector2 pos)
@@ -27,9 +27,9 @@ namespace GraphicsLab2
          int count = 3;
 
          radius = 0;
-         vertices = new List<Vector2>(count);
+         vertices = new Vector2[count];
          for (int i = 0; i < count; i++)
-            vertices.Add(Vector2.Zero);
+            vertices[i] = Vector2.Zero;
       }
 
       public void SetPos(Vector2 pos)
@@ -43,20 +43,20 @@ namespace GraphicsLab2
 
       public void RecalcVertices(int newCount)
       {
-         if(newCount > 2 && newCount != vertices.Count)
+         if(newCount > 2 && newCount != vertices.Length)
          {
-            vertices = new List<Vector2>(newCount);
+            vertices = new Vector2[newCount];
             double angle = 360.0 / newCount * Math.PI / 180.0;
 
             for (int i = 0; i < newCount; i++)
-               vertices.Add(new Vector2(_pos.X + radius * (float)Math.Cos(angle * i + angle / 2), _pos.Y + radius * (float)Math.Sin(angle * i + angle / 2)));
+               vertices[i] = new Vector2(_pos.X + radius * (float)Math.Cos(angle * i + angle / 2), _pos.Y + radius * (float)Math.Sin(angle * i + angle / 2));
          }
       }
 
       public void RecalcVertices()
       {
-         double angle = 360.0 / vertices.Count * Math.PI / 180.0;
-         for (int i = 0; i < vertices.Count; i++)
+         double angle = 360.0 / vertices.Length * Math.PI / 180.0;
+         for (int i = 0; i < vertices.Length; i++)
             vertices[i] = new Vector2(_pos.X + radius * (float)Math.Cos(angle * i + angle / 2), _pos.Y + radius * (float)Math.Sin(angle * i + angle / 2));
       }
 

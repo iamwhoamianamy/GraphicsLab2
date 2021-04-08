@@ -10,7 +10,7 @@ namespace GraphicsLab2
    {
       public static void Main()
       {
-         using (Game game = new Game(1200, 800, "LearnOpenTK"))
+         using (Game game = new Game(800, 800, "LearnOpenTK"))
          {
 
             game.Run(60.0);

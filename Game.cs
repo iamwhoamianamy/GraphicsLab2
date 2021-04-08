@@ -16,6 +16,7 @@ namespace GraphicsLab2
    {
 
       List<Figure> figures;
+      RasterGrid rasterGrid;
 
       bool isActive = false;                    // Есть ли активная фигура
       int active = 0;                           // Номер активной фигуры
@@ -35,6 +36,8 @@ namespace GraphicsLab2
       {
          figures = new List<Figure>();
          lastMousePress = Vector2.Zero;
+         rasterGrid = new RasterGrid(Width, Height);
+
          base.OnLoad(e);
       }
 
@@ -70,6 +73,8 @@ namespace GraphicsLab2
          {
             figures[active].DrawCenter();
          }
+
+         rasterGrid.DrawBorders();
       }
 
       protected override void OnKeyDown(KeyboardKeyEventArgs e)
@@ -173,7 +178,7 @@ namespace GraphicsLab2
       {
          if (isActive)
          {
-            figures[active].RecalcVertices(figures[active].vertices.Count + e.Delta);
+            figures[active].RecalcVertices(figures[active].vertices.Length + e.Delta);
          }
 
          base.OnMouseWheel(e);
@@ -188,6 +193,8 @@ namespace GraphicsLab2
          GL.Ortho(0, Width, Height, 0, -1.0, 1.0);
          GL.MatrixMode(MatrixMode.Modelview);
          GL.LoadIdentity();
+
+         rasterGrid.SetScreenSize(Width, Height);
 
          base.OnResize(e);
       }
