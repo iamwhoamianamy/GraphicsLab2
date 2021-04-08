@@ -36,7 +36,7 @@ namespace GraphicsLab2
       {
          figures = new List<Figure>();
          lastMousePress = Vector2.Zero;
-         rasterGrid = new RasterGrid(20, Width, Height);
+         rasterGrid = new RasterGrid(80, Width, Height, Color4.White);
 
          base.OnLoad(e);
       }
@@ -45,7 +45,7 @@ namespace GraphicsLab2
       {
          GL.Clear(ClearBufferMask.ColorBufferBit);
 
-         Title = figures.Count.ToString();
+         Title = mouseX.ToString() + " " + mouseY.ToString();
 
          UpdatePhysics();
          Render();
@@ -56,25 +56,34 @@ namespace GraphicsLab2
 
       private void UpdatePhysics()
       {
-         
-
+         //rasterGrid.PlotLine(100, 250, 200, 200);
+         rasterGrid.RasterFigures(figures);
       }
 
       private void Render()
       {
          GL.ClearColor(Color4.DarkGray);
 
-         foreach (var f in figures)
-         {
-            f.Draw();
-         }
+         //foreach (var f in figures)
+         //{
+         //   f.Draw();
+         //}
 
          if(isActive)
          {
             figures[active].DrawCenter();
          }
 
-         rasterGrid.DrawBorders();
+         rasterGrid.DrawCells();
+         //rasterGrid.DrawBorders();
+
+         //GL.Color4(Color4.Red);
+         //GL.Begin(BeginMode.Points);
+         //GL.Vertex2(100, 250);
+         //GL.Vertex2(200, 200);
+         //GL.End();
+
+         rasterGrid.ResetColours();
       }
 
       protected override void OnKeyDown(KeyboardKeyEventArgs e)
