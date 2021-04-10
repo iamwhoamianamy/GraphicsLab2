@@ -11,9 +11,10 @@ using OpenTK.Input;
 
 namespace GraphicsLab2
 {
+   // Rasterisation grid class
    class RasterGrid
    {
-      public Color4 basicColor;
+      public Color4 backgroundColor;
       public Color4[][] grid;
       private int _resolution = 0;
 
@@ -25,16 +26,12 @@ namespace GraphicsLab2
 
       public RasterGrid(int resolution, float screenW, float screenH, Color4 basicColor)
       {
-         this.basicColor = basicColor;
+         this.backgroundColor = basicColor;
          AddResolution(Math.Min(Math.Max(resolution, _minRes), _maxRes));
          SetScreenSize(screenW, screenH);
       }
 
-      //public int GetResolution()
-      //{
-      //   return _resolution;
-      //}
-
+      // Adding resolution to current resolution
       public void AddResolution(int resolution)
       {
          int newResolution = _resolution + resolution;
@@ -51,16 +48,16 @@ namespace GraphicsLab2
             ResetColours();
             RecalcCellSize();
          }
-
       }
 
+      // Setting all cells color to background color
       public void ResetColours()
       {
          for (int i = 0; i < _resolution; i++)
          {
             for (int j = 0; j < _resolution; j++)
             {
-               grid[i][j] = basicColor;
+               grid[i][j] = backgroundColor;
             }
          }
       }
@@ -84,8 +81,6 @@ namespace GraphicsLab2
          GL.Color3(0f, 0f, 0f);
          GL.LineWidth(lineWidth);
          GL.Begin(BeginMode.Lines);
-
-
 
          for (int i = 0; i < _resolution - 1; i++)
          {
@@ -118,7 +113,8 @@ namespace GraphicsLab2
          }
       }
 
-      public void RasterFigures(List<Figure> figures)
+      // Performing rasterising of stroke of figures in list
+      public void RasterWithStroke(List<Figure> figures)
       {
          foreach (var f in figures)
          {
@@ -126,62 +122,30 @@ namespace GraphicsLab2
             {
                Vector2 v0 = f.vertices[i];
                Vector2 v1 = f.vertices[(i + 1) % f.vertices.Length];
-
-               if(v0.X < 0)
-               {
-                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(0, 0), new Vector2(0, _screenH));
-                  v0 = vec;
-               }
-
-               if (v1.X < 0)
-               {
-                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(0, 0), new Vector2(0, _screenH));
-                  v1 = vec;
-               }
-
-               if (v0.X >= _screenW)
-               {
-                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(_screenW, 0), new Vector2(_screenW, _screenH));
-                  v0 = vec;
-               }
-
-               if (v1.X >= _screenW)
-               {
-                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(_screenW, 0), new Vector2(_screenW, _screenH));
-                  v1 = vec;
-               }
-
-               if (v0.Y < 0)
-               {
-                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(0, 0), new Vector2(_screenW, 0));
-                  v0 = vec;
-               }
-
-               if (v1.Y < 0)
-               {
-                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(0, 0), new Vector2(_screenW, 0));
-                  v1 = vec;
-               }
-
-               if (v0.Y >= _screenH)
-               {
-                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(0, _screenH), new Vector2(_screenW, _screenH));
-                  v0 = vec;
-               }
-
-               if (v1.Y >= _screenH)
-               {
-                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(0, _screenH), new Vector2(_screenW, _screenH));
-                  v1 = vec;
-               }
-
-               if (v0.X >= 0 && v0.X <= _screenW &&
-                   v1.X >= 0 && v1.X <= _screenW &&
-                   v0.Y >= 0 && v0.Y <= _screenH &&
-                   v1.Y >= 0 && v1.Y <= _screenH)
-                  PlotLine(v0.X, v0.Y, v1.X, v1.Y);
+               PlotLine(v0, v1);
             }
          }
+      }
+
+      // Performong rasterising of line
+      private void PlotLine(Vector2 point0, Vector2 point1)
+      {
+         int x0 = (int)Math.Floor(point0.X / _cellW);
+         int x1 = (int)Math.Floor(point1.X / _cellW);
+
+         int y0 = (int)Math.Floor(point0.Y / _cellH);
+         int y1 = (int)Math.Floor(point1.Y / _cellH);
+
+         if (Math.Abs(y1 - y0) < Math.Abs(x1 - x0))
+            if (x0 > x1)
+               PlotLineLow(x1, y1, x0, y0);
+            else
+               PlotLineLow(x0, y0, x1, y1);
+         else
+            if (y0 > y1)
+            PlotLineHigh(x1, y1, x0, y0);
+         else
+            PlotLineHigh(x0, y0, x1, y1);
       }
 
       private void PlotLineLow(int x0, int y0, int x1, int y1)
@@ -199,7 +163,9 @@ namespace GraphicsLab2
          int y = y0;
          for (int x = x0; x < x1; x++)
          {
-            grid[y][x] = Color4.Blue;
+            if (x >= 0 && x < grid[0].Length &&
+               y >= 0 && y < grid.Length)
+               grid[y][x] = Color4.Blue;
             if (D > 0)
             {
                y += yi;
@@ -226,7 +192,10 @@ namespace GraphicsLab2
          int x = x0;
          for (int y = y0; y < y1; y++)
          {
-            grid[y][x] = Color4.Blue;
+
+            if (x >= 0 && x < grid[0].Length &&
+               y >= 0 && y < grid.Length)
+               grid[y][x] = Color4.Blue;
             if (D > 0)
             {
                x += xi;
@@ -237,24 +206,42 @@ namespace GraphicsLab2
          }
       }
 
-      private void PlotLine(float fx0, float fy0, float fx1, float fy1)
+
+      // Performing rasterising whole figures in list
+      public void RasterWithFilling(List<Figure> figures)
       {
-         int x0 = (int)Math.Floor(fx0 / _cellW);
-         int x1 = (int)Math.Floor(fx1 / _cellW);
+         foreach (var f in figures)
+         {
+            for (int i = 0; i < grid.Length; i++)
+            {
+               for (int j = 0; j < grid[0].Length; j++)
+               {
+                  bool doFill = true;
+                  Vector2 p = new Vector2(j, i);
 
-         int y0 = (int)Math.Floor(fy0 / _cellH);
-         int y1 = (int)Math.Floor(fy1 / _cellH);
+                  if (grid[i][j] != Color4.Blue)
+                  {
 
-         if (Math.Abs(y1 - y0) < Math.Abs(x1 - x0))
-            if (x0 > x1)
-               PlotLineLow(x1, y1, x0, y0);
-            else
-               PlotLineLow(x0, y0, x1, y1);
-         else
-            if (y0 > y1)
-               PlotLineHigh(x1, y1, x0, y0);
-            else
-               PlotLineHigh(x0, y0, x1, y1);
+                     for (int v = 0; v < f.vertices.Length; v++)
+                     {
+                        Vector2 v0 = new Vector2((int)Math.Floor(f.vertices[v].X / _cellW), (int)Math.Floor(f.vertices[v].Y / _cellH));
+                        Vector2 v1 = new Vector2((int)Math.Floor(f.vertices[(v + 1) % f.vertices.Length].X / _cellW), (int)Math.Floor(f.vertices[(v + 1) % f.vertices.Length].Y / _cellH));
+
+                        float d = (p.X - v0.X) * (v1.Y - v0.Y) - (p.Y - v0.Y) * (v1.X - v0.X);
+
+                        if (d >= 0)
+                        {
+                           doFill = false;
+                           break;
+                        }
+                     }
+
+                     if (doFill)
+                        grid[i][j] = Color4.Blue;
+                  }
+               }
+            }
+         }
       }
 
       private Vector2 LineLineIntersection(Vector2 point0, Vector2 point1, Vector2 point2, Vector2 point3)
@@ -274,3 +261,123 @@ namespace GraphicsLab2
 
    }
 }
+
+//public void RasterWithFilling(List<Figure> figures)
+//{
+//   foreach (var f in figures)
+//   {
+//      for (int i = 0; i < grid.Length; i++)
+//      {
+//         for (int j = 0; j < grid[0].Length; j++)
+//         {
+//            bool doFill = true;
+//            Vector2 p = new Vector2(j, i);
+
+//            if (grid[i][j] != Color4.Blue)
+//            {
+
+//               for (int v = 0; v < f.vertices.Length; v++)
+//               {
+//                  Vector2 v0 = new Vector2((int)Math.Floor(f.vertices[v].X / _cellW), (int)Math.Floor(f.vertices[v].Y / _cellH));
+//                  Vector2 v1 = new Vector2((int)Math.Floor(f.vertices[(v + 1) % f.vertices.Length].X / _cellW), (int)Math.Floor(f.vertices[(v + 1) % f.vertices.Length].Y / _cellH));
+
+//                  float d = (p.X - v0.X) * (v1.Y - v0.Y) - (p.Y - v0.Y) * (v1.X - v0.X);
+
+//                  if (d >= 0)
+//                  {
+//                     doFill = false;
+//                     break;
+//                  }
+//               }
+
+//               if (doFill)
+//                  grid[i][j] = Color4.Blue;
+//            }
+//         }
+//      }
+
+
+//   }
+//}
+
+//private void PlotLineLow(float fx0, float fy0, float fx1, float fy1)
+//{
+//   float dx = fx1 - fx0;
+//   float dy = fy1 - fy0;
+//   int yi = 1;
+//   if (dy < 0)
+//   {
+//      yi = -1;
+//      dy = -dy;
+//   }
+//   float D = 2 * dy - dx;
+
+//   int x0 = (int)Math.Floor(fx0 / _cellW);
+//   int x1 = (int)Math.Floor(fx1 / _cellW);
+
+//   int y0 = (int)Math.Floor(fy0 / _cellH);
+
+//   int y = y0;
+//   for (int x = x0; x < x1; x++)
+//   {
+//      if (x >= 0 && x < grid[0].Length &&
+//         y >= 0 && y < grid.Length)
+//         grid[y][x] = Color4.Blue;
+//      if (D > 0)
+//      {
+//         y += yi;
+//         D += 2 * (dy - dx);
+//      }
+//      else
+//         D += 2 * dy;
+//   }
+//}
+
+//private void PlotLineHigh(float fx0, float fy0, float fx1, float fy1)
+//{
+
+//   float dx = fx1 - fx0;
+//   float dy = fy1 - fy0;
+//   int xi = 1;
+//   if (dx < 0)
+//   {
+//      xi = -1;
+//      dx = -dx;
+//   }
+//   float D = 2 * dx - dy;
+
+//   int x0 = (int)Math.Floor(fx0 / _cellW);
+
+//   int y0 = (int)Math.Floor(fy0 / _cellH);
+//   int y1 = (int)Math.Floor(fy1 / _cellH);
+
+//   int x = x0;
+//   for (int y = y0; y < y1; y++)
+//   {
+
+//      if (x >= 0 && x < grid[0].Length &&
+//         y >= 0 && y < grid.Length)
+//         grid[y][x] = Color4.Blue;
+//      if (D > 0)
+//      {
+//         x += xi;
+//         D += 2 * (dx - dy);
+//      }
+//      else
+//         D += 2 * dx;
+//   }
+//}
+
+//private void PlotLine(float x0, float y0, float x1, float y1)
+//{
+//   if (Math.Abs(y1 - y0) < Math.Abs(x1 - x0))
+//      if (x0 > x1)
+//         PlotLineLow(x1, y1, x0, y0);
+//      else
+//         PlotLineLow(x0, y0, x1, y1);
+//   else
+//      if (y0 > y1)
+//      PlotLineHigh(x1, y1, x0, y0);
+//   else
+//      PlotLineHigh(x0, y0, x1, y1);
+//}

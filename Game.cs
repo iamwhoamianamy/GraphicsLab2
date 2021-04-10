@@ -62,7 +62,8 @@ namespace GraphicsLab2
       private void UpdatePhysics()
       {
          //rasterGrid.PlotLine(100, 250, 200, 200);
-         rasterGrid.RasterFigures(figures);
+         rasterGrid.RasterWithStroke(figures);
+         //rasterGrid.RasterWithFilling(figures);
       }
 
       private void Render()
@@ -176,6 +177,7 @@ namespace GraphicsLab2
             float newRadius = e.X - lastMousePress.X;
 
             figures[active].radius = e.X - lastMousePress.X;
+            //figures[active].SetRadius(e.X - lastMousePress.X);
             figures[active].RecalcVertices();
          }
 

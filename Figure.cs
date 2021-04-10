@@ -40,16 +40,20 @@ namespace GraphicsLab2
       {
          return new Vector2(_pos.X, _pos.Y);
       }
+      public void SetRadius(float radius)
+      {
+         this.radius = Math.Max(radius, 2);
+      }
 
       public void RecalcVertices(int newCount)
       {
          if(newCount > 2 && newCount != vertices.Length)
          {
             vertices = new Vector2[newCount];
-            double angle = 360.0 / newCount * Math.PI / 180.0;
+            double angle = 2.0 / newCount * Math.PI;
 
             for (int i = 0; i < newCount; i++)
-               vertices[i] = new Vector2(_pos.X + radius * (float)Math.Cos(angle * i + angle / 2), _pos.Y + radius * (float)Math.Sin(angle * i + angle / 2));
+               vertices[i] = new Vector2(_pos.X + radius * (float)Math.Cos(angle * i), _pos.Y + radius * (float)Math.Sin(angle * i));
          }
       }
 
@@ -57,7 +61,7 @@ namespace GraphicsLab2
       {
          double angle = 360.0 / vertices.Length * Math.PI / 180.0;
          for (int i = 0; i < vertices.Length; i++)
-            vertices[i] = new Vector2(_pos.X + radius * (float)Math.Cos(angle * i + angle / 2), _pos.Y + radius * (float)Math.Sin(angle * i + angle / 2));
+            vertices[i] = new Vector2(_pos.X + radius * (float)Math.Cos(angle * i), _pos.Y + radius * (float)Math.Sin(angle * i));
       }
 
       public void Draw()
