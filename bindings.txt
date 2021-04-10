@@ -1,0 +1,5 @@
+Shift + A = New figure
++ = Upscale raster grid
+- = Downscale raster grid
+LMB = End figure creation
+RMB = Select closest figure / Cancel figure creation
