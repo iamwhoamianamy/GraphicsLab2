@@ -75,7 +75,7 @@ namespace GraphicsLab2
          }
 
          rasterGrid.DrawCells();
-         //rasterGrid.DrawBorders();
+         rasterGrid.DrawBorders(1f);
 
          //GL.Color4(Color4.Red);
          //GL.Begin(BeginMode.Points);
@@ -130,17 +130,10 @@ namespace GraphicsLab2
          {
             case MouseButton.Left:
             {
-               //if (isActive)
-               //{
-               //   isActive = false;
-               //}
-
                if(isInCreationProcess)
                {
                   isInCreationProcess = false;
                }
-
-
                break;
             }
             case MouseButton.Right:
@@ -187,6 +180,8 @@ namespace GraphicsLab2
       {
          if (isInCreationProcess)
          {
+            float newRadius = e.X - lastMousePress.X;
+
             figures[active].radius = e.X - lastMousePress.X;
             figures[active].RecalcVertices();
          }

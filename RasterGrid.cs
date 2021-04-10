@@ -79,10 +79,10 @@ namespace GraphicsLab2
          _cellH = _screenH / _resolution;
       }
 
-      public void DrawBorders()
+      public void DrawBorders(float lineWidth)
       {
          GL.Color3(0f, 0f, 0f);
-         GL.LineWidth(2);
+         GL.LineWidth(lineWidth);
          GL.Begin(BeginMode.Lines);
 
 
@@ -116,7 +116,6 @@ namespace GraphicsLab2
                GL.End();
             }
          }
-
       }
 
       public void RasterFigures(List<Figure> figures)
@@ -127,6 +126,54 @@ namespace GraphicsLab2
             {
                Vector2 v0 = f.vertices[i];
                Vector2 v1 = f.vertices[(i + 1) % f.vertices.Length];
+
+               if(v0.X < 0)
+               {
+                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(0, 0), new Vector2(0, _screenH));
+                  v0 = vec;
+               }
+
+               if (v1.X < 0)
+               {
+                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(0, 0), new Vector2(0, _screenH));
+                  v1 = vec;
+               }
+
+               if (v0.X > _screenW)
+               {
+                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(_screenW, 0), new Vector2(_screenW, _screenH));
+                  v0 = vec;
+               }
+
+               if (v1.X > _screenW)
+               {
+                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(_screenW, 0), new Vector2(_screenW, _screenH));
+                  v1 = vec;
+               }
+
+               if (v0.Y < 0)
+               {
+                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(0, 0), new Vector2(_screenW, 0));
+                  v0 = vec;
+               }
+
+               if (v1.Y < 0)
+               {
+                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(0, 0), new Vector2(_screenW, 0));
+                  v1 = vec;
+               }
+
+               if (v0.Y > _screenH)
+               {
+                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(0, _screenH), new Vector2(_screenW, _screenH));
+                  v0 = vec;
+               }
+
+               if (v1.Y > _screenH)
+               {
+                  Vector2 vec = LineLineIntersection(v0, v1, new Vector2(0, _screenH), new Vector2(_screenW, _screenH));
+                  v1 = vec;
+               }
 
                PlotLine(v0.X, v0.Y, v1.X, v1.Y);
             }
@@ -188,11 +235,11 @@ namespace GraphicsLab2
 
       private void PlotLine(float fx0, float fy0, float fx1, float fy1)
       {
-         int x0 = (int)(fx0 / _cellW);
-         int x1 = (int)(fx1 / _cellW);
+         int x0 = (int)Math.Floor(fx0 / _cellW);
+         int x1 = (int)Math.Floor(fx1 / _cellW);
 
-         int y0 = (int)(fy0 / _cellH);
-         int y1 = (int)(fy1 / _cellH);
+         int y0 = (int)Math.Floor(fy0 / _cellH);
+         int y1 = (int)Math.Floor(fy1 / _cellH);
 
          if (Math.Abs(y1 - y0) < Math.Abs(x1 - x0))
             if (x0 > x1)
@@ -204,6 +251,21 @@ namespace GraphicsLab2
                PlotLineHigh(x1, y1, x0, y0);
             else
                PlotLineHigh(x0, y0, x1, y1);
+      }
+
+      private Vector2 LineLineIntersection(Vector2 point0, Vector2 point1, Vector2 point2, Vector2 point3)
+      {
+         float a1 = point1.Y - point0.Y;
+         float b1 = point0.X - point1.X;
+         float c1 = a1 * point0.X + b1 * point0.Y;
+
+         float a2 = point3.Y - point2.Y;
+         float b2 = point2.X - point3.X;
+         float c2 = a2 * point2.X + b2 * point2.Y;
+
+         float det = a1 * b2 - a2 * b1;
+
+         return new Vector2((b2 * c1 - b1 * c2) / det, (a1 * c2 - a2 * c1) / det);
       }
 
    }
