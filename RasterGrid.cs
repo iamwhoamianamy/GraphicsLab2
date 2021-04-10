@@ -20,8 +20,8 @@ namespace GraphicsLab2
       private float _cellW, _cellH;
       private float _screenW, _screenH;
 
-      private int _minRes = 20;
-      private int _maxRes = 120;
+      private int _minRes = 2;
+      private int _maxRes = 180;
 
       public RasterGrid(int resolution, float screenW, float screenH, Color4 basicColor)
       {
@@ -139,13 +139,13 @@ namespace GraphicsLab2
                   v1 = vec;
                }
 
-               if (v0.X > _screenW)
+               if (v0.X >= _screenW)
                {
                   Vector2 vec = LineLineIntersection(v0, v1, new Vector2(_screenW, 0), new Vector2(_screenW, _screenH));
                   v0 = vec;
                }
 
-               if (v1.X > _screenW)
+               if (v1.X >= _screenW)
                {
                   Vector2 vec = LineLineIntersection(v0, v1, new Vector2(_screenW, 0), new Vector2(_screenW, _screenH));
                   v1 = vec;
@@ -163,19 +163,23 @@ namespace GraphicsLab2
                   v1 = vec;
                }
 
-               if (v0.Y > _screenH)
+               if (v0.Y >= _screenH)
                {
                   Vector2 vec = LineLineIntersection(v0, v1, new Vector2(0, _screenH), new Vector2(_screenW, _screenH));
                   v0 = vec;
                }
 
-               if (v1.Y > _screenH)
+               if (v1.Y >= _screenH)
                {
                   Vector2 vec = LineLineIntersection(v0, v1, new Vector2(0, _screenH), new Vector2(_screenW, _screenH));
                   v1 = vec;
                }
 
-               PlotLine(v0.X, v0.Y, v1.X, v1.Y);
+               if (v0.X >= 0 && v0.X <= _screenW &&
+                   v1.X >= 0 && v1.X <= _screenW &&
+                   v0.Y >= 0 && v0.Y <= _screenH &&
+                   v1.Y >= 0 && v1.Y <= _screenH)
+                  PlotLine(v0.X, v0.Y, v1.X, v1.Y);
             }
          }
       }

@@ -38,6 +38,11 @@ namespace GraphicsLab2
          lastMousePress = Vector2.Zero;
          rasterGrid = new RasterGrid(80, Width, Height, Color4.White);
 
+
+         //figures.Add(new Figure(new Vector2(300, 700)));
+         //figures[0].radius = -100;
+         //figures[0].RecalcVertices(5);
+
          base.OnLoad(e);
       }
 
@@ -64,25 +69,13 @@ namespace GraphicsLab2
       {
          GL.ClearColor(Color4.DarkGray);
 
-         //foreach (var f in figures)
-         //{
-         //   f.Draw();
-         //}
-
-         if(isActive)
-         {
-            figures[active].DrawCenter();
-         }
-
          rasterGrid.DrawCells();
          rasterGrid.DrawBorders(1f);
 
-         //GL.Color4(Color4.Red);
-         //GL.Begin(BeginMode.Points);
-         //GL.Vertex2(100, 250);
-         //GL.Vertex2(200, 200);
-         //GL.End();
-
+         if (isActive)
+         {
+            figures[active].DrawCenter();
+         }
          rasterGrid.ResetColours();
       }
 
