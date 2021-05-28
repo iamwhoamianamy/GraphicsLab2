@@ -16,24 +16,28 @@ namespace GraphicsLab2
    {
       Relaxing,
       Creation,
-      Resize,
+      Resizing,
+      Moving,
+      Rotation,
    }
 
    class Figure
    {
-      private Vector2 _pos;
+      public Vector2 pos;
       public float radius = 0;
       public Vector2[] vertices;
-      Color4 color;
+      public Color4 color;
       public int rasterMode = 0;
       public FigureState figureState;
+      public float rotation;
 
       public Figure(Vector2 pos)
       {
-         color = new Color4(0f, 0f, 0f, 0f);
-         this._pos = pos;
+         color = new Color4(1f, 1f, 1f, 0f);
+         this.pos = pos;
 
          int count = 3;
+         rotation = 0;
 
          radius = 0;
          vertices = new Vector2[count];
@@ -41,14 +45,6 @@ namespace GraphicsLab2
             vertices[i] = Vector2.Zero;
       }
 
-      public void SetPos(Vector2 pos)
-      {
-         _pos = pos;
-      }
-      public Vector2 GetPos()
-      {
-         return new Vector2(_pos.X, _pos.Y);
-      }
       public void SetRadius(float radius)
       {
          this.radius = Math.Max(radius, 2);
@@ -62,7 +58,7 @@ namespace GraphicsLab2
             double angle = 2.0 / newCount * Math.PI;
 
             for (int i = 0; i < newCount; i++)
-               vertices[i] = new Vector2(_pos.X + radius * (float)Math.Cos(angle * i), _pos.Y + radius * (float)Math.Sin(angle * i));
+               vertices[i] = new Vector2(pos.X + radius * (float)Math.Cos(angle * i + rotation), pos.Y + radius * (float)Math.Sin(angle * i + rotation));
          }
       }
 
@@ -70,7 +66,7 @@ namespace GraphicsLab2
       {
          double angle = 360.0 / vertices.Length * Math.PI / 180.0;
          for (int i = 0; i < vertices.Length; i++)
-            vertices[i] = new Vector2(_pos.X + radius * (float)Math.Cos(angle * i), _pos.Y + radius * (float)Math.Sin(angle * i));
+            vertices[i] = new Vector2(pos.X + radius * (float)Math.Cos(angle * i + rotation), pos.Y + radius * (float)Math.Sin(angle * i + rotation));
       }
 
       public void Draw()
@@ -88,17 +84,17 @@ namespace GraphicsLab2
 
       public void DrawCenter()
       {
-         GL.Color3(0f, 0f, 0f);
+         GL.Color3(1f, 1f, 1f);
 
          float size = 10f;
 
          GL.LineWidth(7.5f);
          GL.Begin(BeginMode.Lines);
 
-         GL.Vertex2(_pos.X + size, _pos.Y);
-         GL.Vertex2(_pos.X - size, _pos.Y);
-         GL.Vertex2(_pos.X, _pos.Y + size);
-         GL.Vertex2(_pos.X, _pos.Y - size);
+         GL.Vertex2(pos.X + size, pos.Y);
+         GL.Vertex2(pos.X - size, pos.Y);
+         GL.Vertex2(pos.X, pos.Y + size);
+         GL.Vertex2(pos.X, pos.Y - size);
 
          GL.End();
       }

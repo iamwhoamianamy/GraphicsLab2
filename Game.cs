@@ -27,7 +27,7 @@ namespace GraphicsLab2
       {
          figures = new List<Figure>();
          lastMousePress = Vector2.Zero;
-         rasterGrid = new RasterGrid(80, Width, Height, Color4.White);
+         rasterGrid = new RasterGrid(80, Width, Height, Color4.Black);
 
 
          //figures.Add(new Figure(new Vector2(300, 700)));
@@ -41,7 +41,19 @@ namespace GraphicsLab2
       {
          GL.Clear(ClearBufferMask.ColorBufferBit);
 
-         Title = mouseX.ToString() + " " + mouseY.ToString();
+         string newTitle = "Color mixing type = ";
+
+         switch(rasterGrid.mixType)
+         {
+            case MixType.And: newTitle += "And"; break;
+            case MixType.Or: newTitle += "Or"; break;
+            case MixType.Xor: newTitle += "Xor"; break;
+            case MixType.NotAnd: newTitle += "NotAnd"; break;
+            case MixType.NotOr: newTitle += "NotOr"; break;
+            case MixType.NotXor: newTitle += "NotXor"; break;
+         }
+
+         Title = newTitle;
 
          UpdatePhysics();
          Render();
@@ -62,7 +74,7 @@ namespace GraphicsLab2
          GL.ClearColor(Color4.DarkGray);
 
          rasterGrid.DrawCells();
-         rasterGrid.DrawBorders(1f);
+         //rasterGrid.DrawBorders(1f);
 
          if (isActive)
          {
@@ -70,8 +82,6 @@ namespace GraphicsLab2
          }
          rasterGrid.ResetColours();
       }
-
-      
 
       protected override void OnResize(EventArgs e)
       {
