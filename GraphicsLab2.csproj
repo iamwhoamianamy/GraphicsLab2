@@ -41,7 +41,7 @@
   <ItemGroup>
     <Compile Include="Figure.cs" />
     <Compile Include="Game.cs" />
-    <Compile Include="Point.cs" />
+    <Compile Include="GameInput.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="RasterGrid.cs" />
   </ItemGroup>

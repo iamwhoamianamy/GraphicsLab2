@@ -12,12 +12,21 @@ using OpenTK.Input;
 
 namespace GraphicsLab2
 {
+   public enum FigureState
+   {
+      Relaxing,
+      Creation,
+      Resize,
+   }
+
    class Figure
    {
       private Vector2 _pos;
       public float radius = 0;
       public Vector2[] vertices;
       Color4 color;
+      public int rasterMode = 0;
+      public FigureState figureState;
 
       public Figure(Vector2 pos)
       {

@@ -113,22 +113,19 @@ namespace GraphicsLab2
          }
       }
 
-      // Performing rasterising of stroke of figures in list
-      public void RasterWithStroke(List<Figure> figures)
+      // Performing rasterising of stroke of figure
+      public void RasterWithStroke(Figure figure)
       {
-         foreach (var f in figures)
+         for (int i = 0; i < figure.vertices.Length; i++)
          {
-            for (int i = 0; i < f.vertices.Length; i++)
-            {
-               Vector2 v0 = f.vertices[i];
-               Vector2 v1 = f.vertices[(i + 1) % f.vertices.Length];
-               PlotLine(v0, v1);
-            }
+            Vector2 v0 = figure.vertices[i];
+            Vector2 v1 = figure.vertices[(i + 1) % figure.vertices.Length];
+            PlotLine(v0, v1);
          }
       }
 
       // Performong rasterising of line
-      private void PlotLine(Vector2 point0, Vector2 point1)
+      public void PlotLine(Vector2 point0, Vector2 point1)
       {
          int x0 = (int)Math.Floor(point0.X / _cellW);
          int x1 = (int)Math.Floor(point1.X / _cellW);
@@ -148,7 +145,7 @@ namespace GraphicsLab2
             PlotLineHigh(x0, y0, x1, y1);
       }
 
-      private void PlotLineLow(int x0, int y0, int x1, int y1)
+      public void PlotLineLow(int x0, int y0, int x1, int y1)
       {
          int dx = x1 - x0;
          int dy = y1 - y0;
@@ -176,7 +173,7 @@ namespace GraphicsLab2
          }
       }
 
-      private void PlotLineHigh(int x0, int y0, int x1, int y1)
+      public void PlotLineHigh(int x0, int y0, int x1, int y1)
       {
 
          int dx = x1 - x0;
@@ -206,41 +203,44 @@ namespace GraphicsLab2
          }
       }
 
+      // Performing rasterising whole figure
+      public void RasterWithFilling(Figure figure)
+      {
+         for (int i = 0; i < grid.Length; i++)
+         {
+            for (int j = 0; j < grid[0].Length; j++)
+            {
+               bool doFill = true;
+               Vector2 p = new Vector2(j, i);
 
-      // Performing rasterising whole figures in list
-      public void RasterWithFilling(List<Figure> figures)
+               for (int v = 0; v < figure.vertices.Length; v++)
+               {
+                  Vector2 v0 = new Vector2((int)Math.Floor(figure.vertices[v].X / _cellW), (int)Math.Floor(figure.vertices[v].Y / _cellH));
+                  Vector2 v1 = new Vector2((int)Math.Floor(figure.vertices[(v + 1) % figure.vertices.Length].X / _cellW), (int)Math.Floor(figure.vertices[(v + 1) % figure.vertices.Length].Y / _cellH));
+
+                  float d = (p.X - v0.X) * (v1.Y - v0.Y) - (p.Y - v0.Y) * (v1.X - v0.X);
+
+                  if (d >= 0)
+                  {
+                     doFill = false;
+                     break;
+                  }
+               }
+
+               if (doFill)
+                  grid[i][j] = Color4.Blue;
+            }
+         }
+      }
+
+      public void RasterFigures(List<Figure> figures)
       {
          foreach (var f in figures)
          {
-            for (int i = 0; i < grid.Length; i++)
-            {
-               for (int j = 0; j < grid[0].Length; j++)
-               {
-                  bool doFill = true;
-                  Vector2 p = new Vector2(j, i);
-
-                  if (grid[i][j] != Color4.Blue)
-                  {
-
-                     for (int v = 0; v < f.vertices.Length; v++)
-                     {
-                        Vector2 v0 = new Vector2((int)Math.Floor(f.vertices[v].X / _cellW), (int)Math.Floor(f.vertices[v].Y / _cellH));
-                        Vector2 v1 = new Vector2((int)Math.Floor(f.vertices[(v + 1) % f.vertices.Length].X / _cellW), (int)Math.Floor(f.vertices[(v + 1) % f.vertices.Length].Y / _cellH));
-
-                        float d = (p.X - v0.X) * (v1.Y - v0.Y) - (p.Y - v0.Y) * (v1.X - v0.X);
-
-                        if (d >= 0)
-                        {
-                           doFill = false;
-                           break;
-                        }
-                     }
-
-                     if (doFill)
-                        grid[i][j] = Color4.Blue;
-                  }
-               }
-            }
+            if (f.rasterMode == 0)
+               RasterWithStroke(f);
+            else
+               RasterWithFilling(f);
          }
       }
 
