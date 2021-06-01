@@ -44,107 +44,121 @@ namespace GraphicsLab2
                }
                case Key.Number1:
                {
-                  if(isActive)
-                     figures[active].color.R = Math.Max(0f, figures[active].color.R - 0.1f);
+                  if (isActive)
+                     figures[active].color.R = Math.Max(0f, figures[active].color.R - 0.05f);
                   break;
                }
                case Key.Number2:
                {
                   if (isActive)
-                     figures[active].color.G = Math.Max(0f, figures[active].color.G - 0.1f);
+                     figures[active].color.G = Math.Max(0f, figures[active].color.G - 0.05f);
                   break;
                }
                case Key.Number3:
                {
                   if (isActive)
-                     figures[active].color.B = Math.Max(0f, figures[active].color.B - 0.1f);
+                     figures[active].color.B = Math.Max(0f, figures[active].color.B - 0.05f);
                   break;
                }
-               
+               // Переключение режимов смешивания
+               case Key.B:
+               {
+                  rasterGrid.mixType = (BlendType)(((int)rasterGrid.mixType - 1 + 7) % 7);
+                  break;
+               }
+
             }
          }
-
-         switch (e.Key)
-         {
-            // Умельчение сетки
-            case Key.Plus:
-            {
-               rasterGrid.AddResolution(1);
-               break;
-            }
-            // Укрупнение сетки
-            case Key.Minus:
-            {
-               rasterGrid.AddResolution(-1);
-               break;
-            }
-            case Key.M:
-            {
-               rasterGrid.mixType = (MixType)(((int)(rasterGrid.mixType + 1)) % 6);
-               break;
-            }
-         }
-
-         if (isActive && figures[active].figureState == FigureState.Relaxing)
+         else
          {
             switch (e.Key)
             {
-               // Изменение размера активной фигуры
-               case Key.S:
+               // Умельчение сетки
+               case Key.Plus:
                {
-                  figures[active].figureState = FigureState.Resizing;
-                  lastRadius = figures[active].radius;
-                  lastMousePress = new Vector2(mouseX, mouseY);
+                  rasterGrid.AddResolution(1);
                   break;
                }
-               // Передвижение фиуры
-               case Key.G:
+               // Укрупнение сетки
+               case Key.Minus:
                {
-                  figures[active].figureState = FigureState.Moving;
-                  lastPosition = figures[active].pos;
-                  lastMousePress = new Vector2(mouseX, mouseY);
+                  rasterGrid.AddResolution(-1);
                   break;
                }
-               // Вращение фигуры
-               case Key.R:
+               // Переключение режимов смешивания
+               case Key.B:
                {
-                  figures[active].figureState = FigureState.Rotation;
-                  lastRotation = figures[active].rotation;
-                  lastMousePress = new Vector2(mouseX, mouseY);
-                  break;
-               }
-               // Изменение режима заполнения фигуры
-               case Key.F:
-               {
-                  figures[active].rasterMode = (figures[active].rasterMode + 1) % 2;
-                  break;
-               }
-               // Удаление фигуры
-               case Key.X:
-               {
-                  figures.RemoveAt(active);
-                  isActive = false;
-                  break;
-               }
-
-               case Key.Number1:
-               {
-                  figures[active].color.R = Math.Min(1f, figures[active].color.R + 0.05f);
-                  break;
-               }
-               case Key.Number2:
-               {
-                  figures[active].color.G = Math.Min(1f, figures[active].color.G + 0.05f);
-                  break;
-               }
-               case Key.Number3:
-               {
-                  figures[active].color.B = Math.Min(1f, figures[active].color.B + 0.05f);
+                  rasterGrid.mixType = (BlendType)(((int)(rasterGrid.mixType + 1)) % 7);
                   break;
                }
             }
-         }
 
+            if (isActive && figures[active].figureState == FigureState.Relaxing)
+            {
+               switch (e.Key)
+               {
+                  // Изменение размера активной фигуры
+                  case Key.S:
+                  {
+                     figures[active].figureState = FigureState.Resizing;
+                     lastRadius = figures[active].radius;
+                     lastMousePress = new Vector2(mouseX, mouseY);
+                     break;
+                  }
+                  // Передвижение фиуры
+                  case Key.G:
+                  {
+                     figures[active].figureState = FigureState.Moving;
+                     lastPosition = figures[active].pos;
+                     lastMousePress = new Vector2(mouseX, mouseY);
+                     break;
+                  }
+                  // Вращение фигуры
+                  case Key.R:
+                  {
+                     figures[active].figureState = FigureState.Rotation;
+                     lastRotation = figures[active].rotation;
+                     lastMousePress = new Vector2(mouseX, mouseY);
+                     break;
+                  }
+                  // Изменение режима заполнения фигуры
+                  case Key.F:
+                  {
+                     figures[active].rasterMode = (figures[active].rasterMode + 1) % 2;
+                     break;
+                  }
+                  // Удаление фигуры
+                  case Key.X:
+                  {
+                     figures.RemoveAt(active);
+                     isActive = false;
+                     break;
+                  }
+                  // Удаление фигуры
+                  case Key.O:
+                  {
+                     figures[active].doDrawOutline = !figures[active].doDrawOutline;
+                     break;
+                  }
+
+                  case Key.Number1:
+                  {
+                     figures[active].color.R = Math.Min(1f, figures[active].color.R + 0.05f);
+                     break;
+                  }
+                  case Key.Number2:
+                  {
+                     figures[active].color.G = Math.Min(1f, figures[active].color.G + 0.05f);
+                     break;
+                  }
+                  case Key.Number3:
+                  {
+                     figures[active].color.B = Math.Min(1f, figures[active].color.B + 0.05f);
+                     break;
+                  }
+               }
+            }
+         }
          base.OnKeyDown(e);
       }
 

@@ -30,6 +30,7 @@ namespace GraphicsLab2
       public int rasterMode = 0;
       public FigureState figureState;
       public float rotation;
+      public bool doDrawOutline = false;
 
       public Figure(Vector2 pos)
       {
@@ -69,9 +70,9 @@ namespace GraphicsLab2
             vertices[i] = new Vector2(pos.X + radius * (float)Math.Cos(angle * i + rotation), pos.Y + radius * (float)Math.Sin(angle * i + rotation));
       }
 
-      public void Draw()
+      public void DrawOutline()
       {
-         GL.Color3(color.R, color.G, color.B);
+         GL.Color3(1f - color.R, 1f - color.G, 1f - color.B);
 
          GL.LineWidth(3);
          GL.Begin(BeginMode.LineLoop);

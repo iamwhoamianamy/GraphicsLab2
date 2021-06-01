@@ -11,7 +11,7 @@ using OpenTK.Input;
 
 namespace GraphicsLab2
 {
-   enum MixType
+   enum BlendType
    {
       And = 0,
       Or = 1,
@@ -19,6 +19,7 @@ namespace GraphicsLab2
       NotAnd = 3,
       NotOr = 4,
       NotXor = 5,
+      No = 6
    }
 
    // Rasterisation grid class
@@ -34,14 +35,14 @@ namespace GraphicsLab2
       private int _minRes = 2;
       private int _maxRes = 180;
 
-      public MixType mixType;
+      public BlendType mixType;
 
       public RasterGrid(int resolution, float screenW, float screenH, Color4 basicColor)
       {
          this.backgroundColor = basicColor;
          AddResolution(Math.Min(Math.Max(resolution, _minRes), _maxRes));
          SetScreenSize(screenW, screenH);
-         mixType = MixType.Or;
+         mixType = BlendType.Or;
       }
 
       // Adding resolution to current resolution
@@ -175,7 +176,7 @@ namespace GraphicsLab2
          {
             if (x >= 0 && x < grid[0].Length &&
                y >= 0 && y < grid.Length)
-               grid[y][x] = MixColors(grid[y][x], color, mixType);
+               grid[y][x] = BlendColors(grid[y][x], color, mixType);
             if (D > 0)
             {
                y += yi;
@@ -205,7 +206,7 @@ namespace GraphicsLab2
 
             if (x >= 0 && x < grid[0].Length &&
                y >= 0 && y < grid.Length)
-               grid[y][x] = MixColors(grid[y][x], color, mixType);
+               grid[y][x] = BlendColors(grid[y][x], color, mixType);
             if (D > 0)
             {
                x += xi;
@@ -233,7 +234,7 @@ namespace GraphicsLab2
 
                   float d = (p.X - v0.X) * (v1.Y - v0.Y) - (p.Y - v0.Y) * (v1.X - v0.X);
 
-                  if (d >= 0)
+                  if (d > 0)
                   {
                      doFill = false;
                      break;
@@ -241,7 +242,7 @@ namespace GraphicsLab2
                }
 
                if (doFill)
-                  grid[i][j] = MixColors(grid[i][j], figure.color, mixType);
+                  grid[i][j] = BlendColors(grid[i][j], figure.color, mixType);
             }
          }
       }
@@ -272,53 +273,60 @@ namespace GraphicsLab2
          return new Vector2((b2 * c1 - b1 * c2) / det, (a1 * c2 - a2 * c1) / det);
       }
 
-      public static Color4 MixColors(Color4 a, Color4 b, MixType mixMode)
+      public static Color4 BlendColors(Color4 a, Color4 b, BlendType mixMode)
       {
          switch(mixMode)
          {
-            case MixType.And:
+            case BlendType.And:
             {
-               int newR = (int)(a.R * 255) & (int)(b.R * 255);
-               int newG = (int)(a.G * 255) & (int)(b.G * 255);
-               int newB = (int)(a.B * 255) & (int)(b.B * 255);
+               byte newAR = (byte)Math.Round(a.R * 255);
+               byte newBR = (byte)Math.Round(b.R * 255);
+
+               byte newR = (byte)((byte)Math.Round(a.R * 255) & (byte)Math.Round(b.R * 255));
+               byte newG = (byte)((byte)Math.Round(a.G * 255) & (byte)Math.Round(b.G * 255));
+               byte newB = (byte)((byte)Math.Round(a.B * 255) & (byte)Math.Round(b.B * 255));
                return new Color4(newR / 255.0f, newG / 255.0f, newB / 255.0f, 1f);
             }
-            case MixType.Or:
+            case BlendType.Or:
             {
-               int newR = (int)(a.R * 255) | (int)(b.R * 255);
-               int newG = (int)(a.G * 255) | (int)(b.G * 255);
-               int newB = (int)(a.B * 255) | (int)(b.B * 255);
+               byte newR = (byte)((byte)Math.Round(a.R * 255) | (byte)Math.Round(b.R * 255));
+               byte newG = (byte)((byte)Math.Round(a.G * 255) | (byte)Math.Round(b.G * 255));
+               byte newB = (byte)((byte)Math.Round(a.B * 255) | (byte)Math.Round(b.B * 255));
                return new Color4(newR / 255.0f, newG / 255.0f, newB / 255.0f, 1f);
             }
-            case MixType.Xor:
+            case BlendType.Xor:
             {
-               int newR = (int)(a.R * 255) ^ (int)(b.R * 255);
-               int newG = (int)(a.G * 255) ^ (int)(b.G * 255);
-               int newB = (int)(a.B * 255) ^ (int)(b.B * 255);
+               byte newR = (byte)((byte)Math.Round(a.R * 255) ^ (byte)Math.Round(b.R * 255));
+               byte newG = (byte)((byte)Math.Round(a.G * 255) ^ (byte)Math.Round(b.G * 255));
+               byte newB = (byte)((byte)Math.Round(a.B * 255) ^ (byte)Math.Round(b.B * 255));
                return new Color4(newR / 255.0f, newG / 255.0f, newB / 255.0f, 1f);
             }
-            case MixType.NotAnd:
+            case BlendType.NotAnd:
             {
-               int newR = (int)(a.R * 255) & (int)(b.R * 255);
-               int newG = (int)(a.G * 255) & (int)(b.G * 255);
-               int newB = (int)(a.B * 255) & (int)(b.B * 255);
-               return new Color4(~newR / 255.0f, newG / 255.0f, ~newB / 255.0f, 1f);
+               byte newR = (byte)((byte)Math.Round(a.R * 255) & (byte)Math.Round(b.R * 255));
+               byte newG = (byte)((byte)Math.Round(a.G * 255) & (byte)Math.Round(b.G * 255));
+               byte newB = (byte)((byte)Math.Round(a.B * 255) & (byte)Math.Round(b.B * 255));
+               return new Color4((byte)~newR / 255.0f, (byte)~newG / 255.0f, (byte)~newB / 255.0f, 1f);
             }
-            case MixType.NotOr:
+            case BlendType.NotOr:
             {
-               int newR = (int)(a.R * 255) | (int)(b.R * 255);
-               int newG = (int)(a.G * 255) | (int)(b.G * 255);
-               int newB = (int)(a.B * 255) | (int)(b.B * 255);
-               return new Color4(~newR / 255.0f, ~newG / 255.0f, ~newB / 255.0f, 1f);
+               byte newR = (byte)((byte)Math.Round(a.R * 255) | (byte)Math.Round(b.R * 255));
+               byte newG = (byte)((byte)Math.Round(a.G * 255) | (byte)Math.Round(b.G * 255));
+               byte newB = (byte)((byte)Math.Round(a.B * 255) | (byte)Math.Round(b.B * 255));
+               return new Color4((byte)~newR / 255.0f, (byte)~newG / 255.0f, (byte)~newB / 255.0f, 1f);
             }
-            case MixType.NotXor:
+            case BlendType.NotXor:
             {
-               int newR = (int)(a.R * 255) ^ (int)(b.R * 255);
-               int newG = (int)(a.G * 255) ^ (int)(b.G * 255);
-               int newB = (int)(a.B * 255) ^ (int)(b.B * 255);
-               return new Color4(~newR / 255.0f, ~newG / 255.0f, ~newB / 255.0f, 1f);
+               byte newR = (byte)((byte)Math.Round(a.R * 255) ^ (byte)Math.Round(b.R * 255));
+               byte newG = (byte)((byte)Math.Round(a.G * 255) ^ (byte)Math.Round(b.G * 255));
+               byte newB = (byte)((byte)Math.Round(a.B * 255) ^ (byte)Math.Round(b.B * 255));
+               return new Color4((byte)~newR / 255.0f, (byte)~newG / 255.0f, (byte)~newB / 255.0f, 1f);
             }
 
+            case BlendType.No:
+            {
+               return new Color4(b.R, b.G, b.B, 1f);
+            }
 
             default: return Color4.White;
          }

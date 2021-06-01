@@ -27,12 +27,18 @@ namespace GraphicsLab2
       {
          figures = new List<Figure>();
          lastMousePress = Vector2.Zero;
-         rasterGrid = new RasterGrid(80, Width, Height, Color4.Black);
+         rasterGrid = new RasterGrid(80, Width, Height, new Color4(0.1f, 0.3f, 0.5f, 1f));
 
 
-         //figures.Add(new Figure(new Vector2(300, 700)));
-         //figures[0].radius = -100;
-         //figures[0].RecalcVertices(5);
+         figures.Add(new Figure(new Vector2(100, 100)));
+         figures[0].radius = 100;
+         figures[0].RecalcVertices(4);
+         figures[0].color = new Color4(0.6f, 0.7f, 0.8f, 1f);
+
+         figures.Add(new Figure(new Vector2(100, 300)));
+         figures[1].radius = 100;
+         figures[1].RecalcVertices(4);
+         figures[1].color = new Color4(10, 100, 1, 255);
 
          base.OnLoad(e);
       }
@@ -45,12 +51,13 @@ namespace GraphicsLab2
 
          switch(rasterGrid.mixType)
          {
-            case MixType.And: newTitle += "And"; break;
-            case MixType.Or: newTitle += "Or"; break;
-            case MixType.Xor: newTitle += "Xor"; break;
-            case MixType.NotAnd: newTitle += "NotAnd"; break;
-            case MixType.NotOr: newTitle += "NotOr"; break;
-            case MixType.NotXor: newTitle += "NotXor"; break;
+            case BlendType.And: newTitle += "And"; break;
+            case BlendType.Or: newTitle += "Or"; break;
+            case BlendType.Xor: newTitle += "Xor"; break;
+            case BlendType.NotAnd: newTitle += "NotAnd"; break;
+            case BlendType.NotOr: newTitle += "NotOr"; break;
+            case BlendType.NotXor: newTitle += "NotXor"; break;
+            case BlendType.No: newTitle += "No"; break;
          }
 
          Title = newTitle;
@@ -66,6 +73,7 @@ namespace GraphicsLab2
       {
 
          rasterGrid.RasterFigures(figures);
+         Title += $" {rasterGrid.grid[0][0].R} {rasterGrid.grid[0][0].G} {rasterGrid.grid[0][0].B}";
          //rasterGrid.RasterWithFilling(figures);
       }
 
@@ -80,6 +88,15 @@ namespace GraphicsLab2
          {
             figures[active].DrawCenter();
          }
+
+         foreach (var f in figures)
+         {
+            if(f.doDrawOutline)
+            {
+               f.DrawOutline();
+            }
+         }
+
          rasterGrid.ResetColours();
       }
 
